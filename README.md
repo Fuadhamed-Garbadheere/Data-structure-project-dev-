@@ -1,1 +1,192 @@
 # Data-structure-project-dev-
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+struct Node* head = NULL;
+struct Node* tail = NULL;
+
+// Function to add a node with data to the end of the list
+void append(int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->next = NULL;
+
+    if (tail == NULL) {
+        head = tail = newNode;
+    } else {
+        tail->next = newNode;
+        tail = newNode;
+    }
+}
+
+// Function to add odd numbers to the beginning and even numbers to the end
+void addOddEven() {
+    int num;
+    printf("Enter numbers (-1 to stop):\n");
+
+    while (1) {
+        scanf("%d", &num);
+        if (num == -1) {
+            break;
+        }
+
+        if (num % 2 == 0) {
+            // Even number, add to the end
+            append(num);
+        } else {
+            // Odd number, add to the beginning
+            struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+            newNode->data = num;
+            newNode->next = head;
+            head = newNode;
+        }
+    }
+}
+
+// Function to sort and print the list from largest to smallest
+void sortAndPrint() {
+    struct Node* current;
+    int temp;
+    int swapped;
+
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+
+    do {
+        swapped = 0;
+        current = head;
+
+        while (current->next != NULL) {
+            if (current->data < current->next->data) {
+                temp = current->data;
+                current->data = current->next->data;
+                current->next->data = temp;
+                swapped = 1;
+            }
+            current = current->next;
+        }
+    } while (swapped);
+
+    current = head;
+    while (current != NULL) {
+        printf("%d", current->data);
+        if (current->next != NULL) {
+            printf("->");
+        }
+        current = current->next;
+    }
+    printf("\n");
+}
+
+// Define a structure to represent a student
+struct Student {
+    int student_number;
+    char name[50];
+    int age;
+    struct Student* next;
+};
+
+// Function to add a student to the list
+struct Student* addStudent(struct Student* head, int student_number, const char* name, int age) {
+    struct Student* newStudent = (struct Student*)malloc(sizeof(struct Student));
+    newStudent->student_number = student_number;
+    strcpy(newStudent->name, name);
+    newStudent->age = age;
+    newStudent->next = head;
+    return newStudent;
+}
+
+// Function to search for a student by name and return the student node
+struct Student* findStudentByName(struct Student* head, const char* name) {
+    struct Student* current = head;
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+// Function to delete the next node after a student by name
+void deleteNextNodeByName(struct Student* head, const char* name) {
+    struct Student* student = findStudentByName(head, name);
+    if (student != NULL && student->next != NULL) {
+        struct Student* temp = student->next;
+        student->next = student->next->next;
+        free(temp);
+    }
+}
+
+// Function to print the record with the longest name
+void printLongestNameRecord(struct Student* head) {
+    int max_name_length = 0;
+    struct Student* longest_name_student = NULL;
+    struct Student* current = head;
+
+    while (current != NULL) {
+        if (strlen(current->name) > max_name_length) {
+            max_name_length = strlen(current->name);
+            longest_name_student = current;
+        }
+        current = current->next;
+    }
+
+    if (longest_name_student != NULL) {
+        printf("The longest name in the list: %s  Length : %lu\n", longest_name_student->name, strlen(longest_name_student->name));
+    } else {
+        printf("No student records found.\n");
+    }
+}
+
+int main() {
+    addOddEven();
+    sortAndPrint();
+    struct Student* head = NULL;
+
+    // Add some sample students
+    head = addStudent(head, 201, "Saliha", 27);
+    head = addStudent(head, 203, "Ece", 19);
+
+    // Display the student information and count
+    struct Student* current = head;
+    int count = 1;
+    while (current != NULL) {
+        printf("%d- %s %d %d\n", count, current->name, current->age, current->student_number);
+        current = current->next;
+        count++;
+    }
+
+    // Search for a student by name
+    char search_name[] = "Ece";
+    struct Student* found_student = findStudentByName(head, search_name);
+    if (found_student != NULL) {
+        printf("Found student by name: %s %d %d\n", found_student->name, found_student->age, found_student->student_number);
+    } else {
+        printf("Student not found by name: %s\n", search_name);
+    }
+
+    // Delete the next node after a student by name
+    char delete_name[] = "Ece";
+    deleteNextNodeByName(head, delete_name);
+
+    // Print the record with the longest name
+    printLongestNameRecord(head);
+
+    // Clean up and free memory for students
+    while (head != NULL) {
+        struct Student* temp = head;
+        head = head->next;
+        free(temp);
+    }
+
+    return 0;
+}
